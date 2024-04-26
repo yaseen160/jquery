@@ -1,218 +1,374 @@
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+class calculator extends CI_Controller
+{
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Maps to the following URL
+	 * 		http://example.com/index.php/welcome
+	 *	- or -
+	 * 		http://example.com/index.php/welcome/index
+	 *	- or -
+	 * Since this controller is set as the default controller in
+	 * config/routes.php, it's displayed at http://example.com/
+	 *
+	 * So any other public methods not prefixed with an underscore will
+	 * map to /index.php/welcome/<method_name>
+	 * @see https://codeigniter.com/user_guide/general/urls.html
+	 */
+    //pagnination
 
-    <title>Calculator</title>
-    <style>
-      ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #333;
-}
+    function favorite(){
+            $admin=$this->session->userdata('admin');
+        $data['fav']=$this->model->favoritelist($admin);
+        $this->load->view('favoritelist',$data);
+    }
 
-li {
-  float: left;
-}
 
-li a {
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-}
+    function History($page = 1){
+  if($page<=0)
+         {
+      $page=1;
+        }
 
-li a:hover:not(.active) {
-  background-color: #111;
-}
 
-.active {
-  background-color: #04AA6D;
-}
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
-        .calculator-container {
-            width: 350px;
-            margin: 50px auto;
-            background-color: #f2f2f2;
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        form {
-            text-align: center;
-            width: 100%;
-        }
-        label {
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-        }
-        input[type="number"], select, input[type="submit"] {
-            width: 80%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        input[type="number"]:focus, select:focus, input[type="submit"]:hover {
-            border-color: #4CAF50;
-        }
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-        strong {
-            display: block;
-            margin-top: 10px;
-            font-size: 10px;
-            color: #333;
-        }
-        table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 20%;
-}
+          $admin=$this->session->userdata('admin');
+          $data['current_page'] = $page;
+          $config = array();
+        $config["base_url"] = base_url() . "calculation";
+        $config["total_rows"] = $this->model->record_count();
+        $config["per_page"] = 2; 
+        $config["uri_segment"] = 3; 
 
-td, th {
+        $this->pagination->initialize($config);
+
+      $page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+    $offset = max(0, ($page - 1) * $config["per_page"]);
+$data["results"] = $this->model->fetch_data($config["per_page"], $offset);
+    
+
+   
+
+        $this->load->model('model');
+ $data['abs'] = $this->model->grouplist($admin);
+ 
+      $data['historys'] = $this->model->historylist($admin);
+
+    $data['ac'] = $this->model->countdetail();
+        $this->load->view('History',$data);
+    }
+
+
+	function __construct() {
+        parent::__construct();
+        $this->load->model('model');
+        $this->load->library('pagination');
+    }
+
+
+//     function index() {
+
+//       $admin=$this->session->userdata('admin');
+//       $data['fav']=$this->model->favoritelist($admin);
+// $this->load->model('model');
+//  $data['abs'] = $this->model->grouplist($admin);
+//  $data['fav']=$this->model->favoritelist($admin);
+//       $data['historys'] = $this->model->historylist();
+
+//     $data['ac'] = $this->model->countdetail();
+         
+//     $this->load->view('calculator',$data);
+   
+//     }
+
+   
+
+//     function calculate() {
+//         $operand1 = $this->input->post('operand1');
+//         $operand2 = $this->input->post('operand2');
+//      $operator = $this->input->post('operator');
+//              switch ($operator)  {
+//             case '+':
+//                 $result = $operand1 + $operand2;
+//                 break;
+//             case '-':
+//                 $result = $operand1 - $operand2;
+//                 break;
+//             case '*':
+//                 $result = $operand1 * $operand2;
+//                 break;
+//             case '/':
+//                 $result = $operand1 / $operand2;
+//                 break;
+//                  case '%':
+//                 $result  = ($operand1 * $operand2) / 100;
+//                 break;
+             
+//             default:
+//                 $result = "Invalid operator";
+//         }
+
+//        $admin = $this->session->userdata('admin');;
+
+//     $this->load->model('model');
+
+
+//     $this->session->set_userdata('result', $result);
+//     $data['result']=$this->session->userdata('result');
+//      $data['abs'] = $this->model->grouplist($admin);
+//  $data['fav']=$this->model->favoritelist($admin);
+//       $data['historys'] = $this->model->historylist($admin);
+//  $data['ac'] = $this->model->countdetail();
+//   $this->load->model('model');
+
+// $this->model->save_result($operand1,$operand2,$operator,$result);
+    
+//    $this->load->view('calculator',$data);
+    
+
+    
+      
+
+//     }
+    function login_page(){
+         $this->session->sess_destroy();
+        $this->load->view('login');
+    }
+       function sigin_page(){
+        $this->load->view('sigin');
+    }
+
+
+
+    function authenticate()
+   {
+    $email = $this->input->post('email');
+    $psw = $this->input->post('psw');
+    
+    $check = $this->model->checksigin($email, $psw);
+    if($check){
+        $adminid = $check[0]['admin_id'];
+
+        $the_session = array("admin" => $adminid);
+        $this->session->set_userdata($the_session);
+
+        redirect('calculation', 'refresh');
+    }
+    else{
+        redirect('calculation', 'refresh');
+    }
+    }
+    function save_sigin() //insert
+    {
+        $email=$this->input->post('email');
+        $psw=$this->input->post('psw');
+    
+
+
+        $value = array(
+                    'admin_email' => $email,
+                    'admin_password' => $psw,
+                    
+                );
+        $this->load->model('model');
+
+        $save = $this->model->savesigin($value);
+
+        if($save)
+        {
+            redirect('login', 'refresh');
+        }
+        else{
+            redirect('', 'refresh');
+        }
+         
+
+} 
+
+
+
+
+function view_history()
+    {
+
+
+      $admin = $this->session->userdata('admin');        
+
+         
+       
+        
+     $data['historys'] = $this->model->historylist($admin); 
+        
      
 
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 5px;
+       $this->load->view('calculator',$data);
+
+       
+        
+}
+function favoritelist(){
+
+        $admin=$this->session->userdata('admin');
+    $result_id=$this->input->post('result_id');
+
+
+    $value=array(
+        'result_fav'=>1
+    );
+
+      $this->load->model('model');
+  $data['fav']=$this->model->favoritelist($admin);
+    $this->load->model('model');
+ $value=$this->model->get_favorite($result_id,$value);
+
+     redirect('historyab','refresh');
+}
+function group(){
+     $admin=$this->session->userdata('admin');
+    $result_id=$this->input->post('result_id');
+    $this->load->model('model');
+          $data['abs'] = $this->model->grouplist($admin);
+           $this->load->view('calculator',$data);
+
+
+
 }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
+function changepassword()
+    {
+        
+         $eid = $this->session->userdata('admin');
+            
+            $data['error'] = $this->session->flashdata('error');
 
-        * {
-  box-sizing: border-box;
-}
+           
 
-.flex-container {
-  display: flex;
-  flex-direction: row;
-  font-size: 15px;
-  text-align: center;
-}
+            $data['admin'] = $this->model->data($eid);
 
-.flex-item-left {
+            
+        $this->load->view('change_password');
+        
+    }
 
-  padding: 10px;
-  flex: 50%;
-}
+    function set_password()
+    {
+        $eid = $this->session->userdata('admin');
+        $old = $this->input->post('old'); 
+        $new = $this->input->post('new'); 
+        $confirm = $this->input->post('confirm'); 
 
-.flex-item-right {
- 
-  padding: 10px;
-  flex: 50%;
-}
+        $check = $this->model->check_old($eid, $old);
 
-/* Responsive layout - makes a one column-layout instead of two-column layout */
-@media (max-width: 800px) {
-  .flex-container {
-    flex-direction: column;
-  }
-}
-.pagination a {
-  color: black;
-  float: left;
-  padding: 8px 16px;
-  text-decoration: none;
-  transition: background-color .3s;
-}
+        if($check)
+        {
+            if($new==$confirm)
+            {
+                $value = array(
+                    'admin_password' => $confirm                   
+                );
 
-.pagination a.active {
-  background-color: dodgerblue;
-  color: white;
-}
+            $update = $this->model->update_profile($eid, $value);
+         
+                if($update)
+                {
+                    redirect('calculation', 'refresh');
+                }
+                else{            
+                    $this->session->set_flashdata('error','1');
+                    redirect('password', 'refresh');
+                }
+            }    
+            else{
+                $this->session->set_flashdata('error','Passwords do not match');
+                redirect('password', 'refresh');
+            }        
+        }    
+        else{            
+            $this->session->set_flashdata('error','Old Password is not correct');
+            redirect('password', 'refresh');
+        }    
+    }
+    function upload(){
+        $this->load->view('uploadpic');
+    }
+function updatepic(){
+$eid = $this->session->userdata('admin');
 
-.pagin
+$target_dir = "assets/upload/";
+$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+$uploadOk = 1;
+$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-    </style>
-</head>
-   <ul>
-  <li><a href="History">History List</a></li>
-  <li><a href="favorite">Favorite List</a></li>
-  <li><a href="groupby">Most Used</a></li>
-    <li><a href="login">Log Out</a></li>
-  <li style="float:right"><a class="active" href="password">Updata Password</a></li>
-    <li style="float:right"><a class="active" href="upload_pic">Update Profile</a></li>
-  <li style="float:right">
-        <img src="<?php echo base_url('assets/upload/img.jpg.jpg');?>" alt="" width="50" height="45">
-    </li>
-</ul>
-<body>
+$check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+if($check !== false) {
     
-<div class="flex-container">
-  <div class="flex-item-right">
-    <div class="calculator-container">
-        <h2>Calculator</h2>
-        <form method="post" action="<?php echo base_url('calculate'); ?>">
-            <label for="operand1">Operand 1 </label>
-            <input type="number" name="operand1" value="<?php echo isset($result) ? $result : ''; ?>" required><br>
-            <label for="operand2">Operand 2:</label>
-            <input type="number" name="operand2" required><br>
-            <label>Select Operator:</label>
-            <div>
-                <input type="radio" id="Addition" name="operator" value="+">
-                <label for="Addition">Addition</label>
-                <input type="radio" id="Subtraction" name="operator" value="-">
-                <label for="Subtraction">Subtraction</label>
-                <input type="radio" id="Multiplication" name="operator" value="*">
-                <label for="Multiplication">Multiplication</label>
-                <input type="radio" id="Division" name="operator" value="/">
-                <label for="Division">Division</label>
-                <input type="radio" id="Percentage" name="operator" value="%">
-                <label for="Percentage">Percentage</label>
-            </div>
-            <input type="submit" value="Calculate">
-        </form>
-
-        <?php if (isset($result)): ?>
-        <strong>Result: <?php echo $result; ?></strong>
-        <?php endif; ?>
-    </div>
-</div>
-
-  </div>
-</div>
+    $uploadOk = 1;
+      move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file);
+} else {
+    
+    $uploadOk = 0;
+}
 
 
-</div>
+if ($uploadOk == 1) {
+    $email = $this->input->post('email');
 
-</body>
-</html>
+    $data = array(
+        'admin_email' => $email,
+        'admin_pic' => $target_file
+    );
+
+ $updated = $this->model->pic($eid, $data);
 
 
+    if ($updated) {
+        redirect('calculation', 'refresh');
+    }
+}
+}
+function do()
+{ $admin=$this->session->userdata('admin');
+      $data['fav']=$this->model->favoritelist($admin);
+$this->load->model('model');
+ $data['abs'] = $this->model->grouplist($admin);
+ $data['fav']=$this->model->favoritelist($admin);
+      $data['historys'] = $this->model->historylist();
 
+    $data['ac'] = $this->model->countdetail();
+    $this->load->view('do');
+}
 
+function doit()
+{
+    $operand1 = $this->input->post('a');
+    $operand2 = $this->input->post('b');
+    $operator = $this->input->post('c');
+    
+    switch ($operator)  {
+        case '+':
+            $result = $operand1 + $operand2;
+            break;
+        case '-':
+            $result = $operand1 - $operand2;
+            break;
+        case '*':
+            $result = $operand1 * $operand2;
+            break;
+        case '/':
+            $result = $operand1 / $operand2;
+            break;
+        case '%':
+            $result = ($operand1 * $operand2) / 100;
+            break;
+        default:
+            $result = "Invalid operator";
+    }
+    $this->load->model('model');
+$this->model->save_result($operand1,$operand2,$operator,$result);
 
+    echo json_encode($result);
+}
 
+        }            
